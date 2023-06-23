@@ -1,0 +1,132 @@
+const axios = require('axios');
+const ExcelJS = require('exceljs');
+const stream = require('stream');
+
+module.exports = async function (context, req) {
+    context.log('JavaScript HTTP trigger function processed a request.');
+
+    const url = 'https://charting.kalibrate.com/WPPS/Diesel/Retail%20(Incl.%20Tax)/WEEKLY/2023/Diesel_Retail%20(Incl.%20Tax)_WEEKLY_2023.xlsx';
+
+    try {
+        // Download Excel file from the URL
+        const response = await axios.get(url, { responseType: 'arraybuffer' });
+
+        // Create a readable stream from the downloaded data
+        const readableStream = new stream.Readable();
+        readableStream.push(response.data);
+        readableStream.push(null);
+
+        // Load workbook from stream
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.read(readableStream);
+
+        // Get the first worksheet
+        const worksheet = workbook.getWorksheet(1);
+
+        // Build HTML table from Excel data
+        let htmlTable = '<table>\n<tr><th>Week Ending</th><th>Price</th></tr>\n';
+
+        // Get the third row for "Week Ending" values
+        const weekEndingRow = worksheet.getRow(3);
+        let weekEndings = [];
+        weekEndingRow.eachCell((cell, colNumber) => {
+            if (colNumber > 1) { // Skip columns before the actual data
+                weekEndings.push(cell.text);
+            }
+        });
+
+        // Find the row starting with "Vancouver" and iterate through it for prices
+        let prices = [];
+        worksheet.eachRow((row, rowNumber) => {
+            if (row.getCell(1).text.startsWith('VANCOUVER*')) {
+                row.eachCell((cell, colNumber) => {
+                    if (colNumber > 1) { // Skip columns before the actual data
+                        prices.push(cell.text);
+                    }
+                });
+            }
+        });
+
+        // Combine week endings and prices into the HTML table
+        for (let i = 0; i < weekEndings.length; i++) {
+            if (prices[i]) { // Check if there is data in the prices field
+                htmlTable += `<tr><td>${weekEndings[i]}</td><td>${prices[i]}</td></tr>\n`;
+            } else {
+                break; // Stop the loop if there is no more data in the prices field
+            }
+        }
+
+        htmlTable += '</table>'; // Close the HTML table
+
+        // CSS for dark mode and centering the table
+        
+        // Combine CSS and HTML table
+        //const htmlContent = css + htmlTable;
+
+
+        const htmlStructure = `
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <style>
+                    body {
+                        background-color: #2e2e2e !important;
+                        color: #f5f5f5;
+                        font-family: Arial, sans-serif;
+                    }
+                
+                    table {
+                        margin: 0 auto;
+                        border-collapse: collapse;
+                        width: 80%;
+                        border: solid;
+                    }
+                
+                    th {
+                        background-color: #444;
+                        padding: 10px;
+                        text-align: center;
+                        border: solid;
+                    }
+                
+                    td {
+                        padding: 10px;
+                        text-align: left;
+                        text-align: center;
+                        border: solid;
+                    }
+                    </style>
+                    <title>Table Data</title>
+                </head>
+                <body>
+                    <h1>Weekly Average diesel fuel prices in Vancouver, BC</h1>
+                    ${htmlTable}
+                    
+                    <a href='https://charting.kalibrate.com/WPPS/Diesel/Retail%20(Incl.%20Tax)/WEEKLY/2023/Diesel_Retail%20(Incl.%20Tax)_WEEKLY_2023.xlsx'> Source </a>
+                </body>
+                </html>
+            `;
+
+
+        // Print the HTML content to the console
+        //context.log(htmlContent);
+
+        context.res = {
+            // status: 200, /* Defaults to 200 */
+            headers: {
+                'Content-Type': 'text/html'
+            },
+            body: htmlStructure
+        };
+    } catch (error) {
+        context.log(error);
+
+        context.res = {
+            status: 500,
+            body: "An error occurred while processing your request."
+        };
+    }
+};
