@@ -1,6 +1,6 @@
-# Diesel Fuel Prices Scraper
+# Diesel Fuel Prices Scraper Azure Function
 
-This project scrapes weekly average diesel fuel prices in Vancouver, BC, from an Excel file available online, and renders it as an HTML table with a dark theme.
+This Azure Function scrapes weekly average diesel fuel prices in Vancouver, BC, from an Excel file available online and renders it as an HTML table with a dark theme.
 
 ## Features
 
@@ -14,6 +14,8 @@ This project scrapes weekly average diesel fuel prices in Vancouver, BC, from an
 
 - Node.js
 - npm
+- Azure Functions Core Tools
+- An Azure account
 
 ## Dependencies
 
@@ -41,21 +43,27 @@ This project scrapes weekly average diesel fuel prices in Vancouver, BC, from an
     npm install
     ```
 
-4. Run the script.
+4. Sign in to your Azure account.
 
     ```sh
-    node index.js
+    az login
     ```
 
-5. The script will fetch the data and render it as an HTML table. You should see the output in the console.
+5. Deploy the function to Azure.
+
+    ```sh
+    func azure functionapp publish <app-name>
+    ```
+
+6. Once deployed, you can trigger the function via an HTTP request to the function URL.
 
 ## Code Structure
 
-- `index.js`: This file contains the main script for fetching and processing the Excel data, and rendering the HTML output.
+- `index.js`: This file contains the main script for fetching and processing the Excel data, and rendering the HTML output as an Azure Function.
 
 ## Customization
 
-If you wish to customize the appearance of the HTML output, you can modify the CSS styles in the `index.js` file.
+If you wish to customize the appearance of the HTML output or modify the data processing, you can edit the `index.js` file.
 
 ## License
 
