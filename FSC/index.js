@@ -2,6 +2,21 @@ const axios = require('axios');
 const ExcelJS = require('exceljs');
 const stream = require('stream');
 
+function calculateFuelSurchargePercentage(price) {
+    let surchargePercentage = 0;
+
+    if (price >= 180.9 && price <= 181.8) {
+        surchargePercentage = 26;
+    } else if (price > 181.8) {
+        surchargePercentage = 26 + (Math.floor(price - 180.9) * 0.25);  
+    } else if (price < 180.9) {
+        surchargePercentage = (Math.floor((price - 69.9) / 2) * 0.25) + 12;
+    }
+
+    return surchargePercentage.toFixed(2);  // Round to two decimal places
+    
+}
+
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
 
@@ -24,7 +39,7 @@ module.exports = async function (context, req) {
         const worksheet = workbook.getWorksheet(1);
 
         // Build HTML table from Excel data
-        let htmlTable = '<table>\n<tr><th>Week Ending</th><th>Price</th></tr>\n';
+        let htmlTable = '<table>\n<tr><th>Week Ending</th><th>Price</th><th>LTL</th></tr>\n';
 
         // Get the third row for "Week Ending" values
         const weekEndingRow = worksheet.getRow(3);
@@ -50,7 +65,9 @@ module.exports = async function (context, req) {
         // Combine week endings and prices into the HTML table
         for (let i = 0; i < weekEndings.length; i++) {
             if (prices[i]) { // Check if there is data in the prices field
-                htmlTable += `<tr><td>${weekEndings[i]}</td><td>${prices[i]}</td></tr>\n`;
+                const price = parseFloat(prices[i]);  // Assume prices are in string format, convert to float
+                const ltl = calculateFuelSurchargePercentage(price);  // Calculate LTL
+                htmlTable += `<tr><td>${weekEndings[i]}</td><td>${prices[i]}</td><td>${ltl}</td></tr>\n`;
             } else {
                 break; // Stop the loop if there is no more data in the prices field
             }
