@@ -67,7 +67,7 @@ module.exports = async function (context, req) {
             if (prices[i]) { // Check if there is data in the prices field
                 const price = parseFloat(prices[i]);  // Assume prices are in string format, convert to float
                 const ltl = calculateFuelSurchargePercentage(price);  // Calculate LTL
-                const tl = ltl + 15;
+                const tl = parseFloat(ltl) + 15;
                 htmlTable += `<tr><td>${weekEndings[i]}</td><td>${prices[i]}</td><td>${ltl}%</td><td>${tl}%</td></tr>\n`;
             } else {
                 break; // Stop the loop if there is no more data in the prices field
