@@ -38,6 +38,8 @@ module.exports = async function (context, req) {
         // Get the first worksheet
         const worksheet = workbook.getWorksheet(1);
 
+       
+
         // Build HTML table from Excel data
         let htmlTable = '<table>\n<tr><th>Week Ending</th><th>Price</th><th>LTL</th><th>TL</th></tr>\n';
 
@@ -52,20 +54,32 @@ module.exports = async function (context, req) {
 
         // Find the row starting with "Vancouver" and iterate through it for prices
         let prices = [];
+        let foundEmptyCell = false;
+
         worksheet.eachRow((row, rowNumber) => {
             if (row.getCell(1).text.startsWith('VANCOUVER*')) {
                 row.eachCell((cell, colNumber) => {
-                    if (colNumber > 1) { // Skip columns before the actual data
+                    if (colNumber > 1) {  // Skip columns before the actual data
+                        if(cell.text === '' || cell.text == null) {
+                            foundEmptyCell = true;
+                        }
+                        if (foundEmptyCell) {
+                            return;  // Stop processing if an empty cell has been found
+                        }
                         prices.push(cell.text);
                     }
                 });
+                if (foundEmptyCell) {
+                    return;  // Stop processing further rows if an empty cell has been found
+                }
             }
         });
-        let startIndex = weekEndings.length - 6;
-        if (startIndex < 0) startIndex = 0;
 
+        // Determine the starting index to get the last 6 rows
+            let startIndex = prices.length - 6;
+            if (startIndex < 0) startIndex = 0; 
         // Combine week endings and prices into the HTML table
-        for (let i = startIndex; i < weekEndings.length; i++) {
+        for (let i = startIndex; i < prices.length; i++) {
             if (prices[i]) { // Check if there is data in the prices field
                 const price = parseFloat(prices[i]);  // Assume prices are in string format, convert to float
                 const ltl = calculateFuelSurchargePercentage(price);  // Calculate LTL
