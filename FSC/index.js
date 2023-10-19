@@ -61,9 +61,11 @@ module.exports = async function (context, req) {
                 });
             }
         });
+        let startIndex = weekEndings.length - 6;
+        if (startIndex < 0) startIndex = 0;
 
         // Combine week endings and prices into the HTML table
-        for (let i = 0; i < weekEndings.length; i++) {
+        for (let i = startIndex; i < weekEndings.length; i++) {
             if (prices[i]) { // Check if there is data in the prices field
                 const price = parseFloat(prices[i]);  // Assume prices are in string format, convert to float
                 const ltl = calculateFuelSurchargePercentage(price);  // Calculate LTL
@@ -99,7 +101,7 @@ module.exports = async function (context, req) {
                     table {
                         margin: 0 auto;
                         border-collapse: collapse;
-                        width: 80%;
+                        width: 40em;
                         border: solid;
                     }
                 
