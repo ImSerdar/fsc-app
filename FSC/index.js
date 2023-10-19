@@ -39,7 +39,7 @@ module.exports = async function (context, req) {
         const worksheet = workbook.getWorksheet(1);
 
         // Build HTML table from Excel data
-        let htmlTable = '<table>\n<tr><th>Week Ending</th><th>Price</th><th>LTL</th></tr>\n';
+        let htmlTable = '<table>\n<tr><th>Week Ending</th><th>Price</th><th>LTL</th><th>TL</th></tr>\n';
 
         // Get the third row for "Week Ending" values
         const weekEndingRow = worksheet.getRow(3);
@@ -67,7 +67,8 @@ module.exports = async function (context, req) {
             if (prices[i]) { // Check if there is data in the prices field
                 const price = parseFloat(prices[i]);  // Assume prices are in string format, convert to float
                 const ltl = calculateFuelSurchargePercentage(price);  // Calculate LTL
-                htmlTable += `<tr><td>${weekEndings[i]}</td><td>${prices[i]}</td><td>${ltl}</td></tr>\n`;
+                const tl = ltl + 15;
+                htmlTable += `<tr><td>${weekEndings[i]}</td><td>${prices[i]}</td><td>${ltl}%</td><td>${tl}%</td></tr>\n`;
             } else {
                 break; // Stop the loop if there is no more data in the prices field
             }
