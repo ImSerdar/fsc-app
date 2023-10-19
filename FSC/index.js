@@ -41,14 +41,17 @@ module.exports = async function (context, req) {
        
 
         // Build HTML table from Excel data
-        let htmlTable = '<table>\n<tr><th>Week Ending</th><th>Price</th><th>LTL</th><th>TL</th></tr>\n';
+        let htmlTable = '<table>\n<tr><th>Effective Date</th><th>Price</th><th>LTL</th><th>TL</th></tr>\n';
 
         // Get the third row for "Week Ending" values
         const weekEndingRow = worksheet.getRow(3);
         let weekEndings = [];
         weekEndingRow.eachCell((cell, colNumber) => {
             if (colNumber > 1) { // Skip columns before the actual data
-                weekEndings.push(cell.text);
+                let [month, day] = cell.text.split('/');
+                let date = new Date(new Date().getFullYear(), month - 1, +day + 3);  // Assume current year, add 3 days for Friday
+                let newWeekEnding = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;  // Format date as MM/DD
+                weekEndings.push(newWeekEnding);
             }
         });
 
