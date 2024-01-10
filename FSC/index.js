@@ -170,3 +170,5 @@ module.exports = async function (context, req) {
         };
     }
 };
+
+//https://charting.kalibrate.com/WPPS/Diesel/Retail%20(Incl.%20Tax)/WEEKLY/2024/Diesel_Retail%20(Incl.%20Tax)_WEEKLY_2024.xlsx
