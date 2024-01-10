@@ -20,7 +20,7 @@ function calculateFuelSurchargePercentage(price) {
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
 
-    const url = 'https://charting.kalibrate.com/WPPS/Diesel/Retail%20(Incl.%20Tax)/WEEKLY/2023/Diesel_Retail%20(Incl.%20Tax)_WEEKLY_2023.xlsx';
+    const url = 'https://charting.kalibrate.com/WPPS/Diesel/Retail%20(Incl.%20Tax)/WEEKLY/2024/Diesel_Retail%20(Incl.%20Tax)_WEEKLY_2024.xlsx';
 
     try {
         // Download Excel file from the URL
@@ -51,9 +51,12 @@ module.exports = async function (context, req) {
                 let [month, day] = cell.text.split('/');
                 let date = new Date(new Date().getFullYear(), month - 1, +day + 3);  // Assume current year, add 3 days for Friday
                 let newWeekEnding = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;  // Format date as MM/DD
-                weekEndings.push(newWeekEnding);
+                weekEndings.push(newWeekEnding); 
             }
         });
+            let x = 1;
+
+            if (x = 1) return true;
 
         // Find the row starting with "Vancouver" and iterate through it for prices
         let prices = [];
@@ -142,7 +145,7 @@ module.exports = async function (context, req) {
                     <h1>Weekly Average diesel fuel prices in Vancouver, BC</h1>
                     ${htmlTable}
                     
-                    <a href='https://charting.kalibrate.com/WPPS/Diesel/Retail%20(Incl.%20Tax)/WEEKLY/2023/Diesel_Retail%20(Incl.%20Tax)_WEEKLY_2023.xlsx'> Source </a>
+                    <a href='https://charting.kalibrate.com/WPPS/Diesel/Retail%20(Incl.%20Tax)/WEEKLY/2024/Diesel_Retail%20(Incl.%20Tax)_WEEKLY_2024.xlsx'> Source </a>
                 </body>
                 </html>
             `;
